@@ -10,7 +10,9 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 
 import br.com.cgc.vaadin.ds.MaquinaJPAContainer;
+import br.com.cgc.vaadin.ds.TipoOcorrenciaJPAContainer;
 import br.com.cgc.vaadin.ds.TurnoJPAContainer;
+import br.com.cgc.vaadin.ui.*;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.event.ItemClickEvent;
@@ -56,8 +58,10 @@ public class MaquinaUI extends UI {
     private Logger log = Logger.getLogger(MaquinaUI.class);
     private Table tableMaquina;
     private Table tableTurno;
+    private Table tableTipoOcorrencia;
     private final MaquinaJPAContainer dataSourceMaquina = new MaquinaJPAContainer();
     private final TurnoJPAContainer datasourceturno = new TurnoJPAContainer();
+    private final TipoOcorrenciaJPAContainer  datasourceTipoOcorrencia = new TipoOcorrenciaJPAContainer();
 
     @Override
     protected void init(VaadinRequest request) {
@@ -78,6 +82,16 @@ public class MaquinaUI extends UI {
             @Override
             public void itemClick(ItemClickEvent event) {
                 TurnoWindow window = new TurnoWindow(datasourceturno);
+                window.edit(Integer.valueOf(event.getItemId().toString()));
+            }
+        });
+        
+        tableTipoOcorrencia = new TipoOcorrenciaTable(datasourceTipoOcorrencia);
+        tableTipoOcorrencia.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+
+            @Override
+            public void itemClick(ItemClickEvent event) {
+                TipoOcorrenciaWindow window = new TipoOcorrenciaWindow(datasourceTipoOcorrencia);
                 window.edit(Integer.valueOf(event.getItemId().toString()));
             }
         });
@@ -163,6 +177,12 @@ public class MaquinaUI extends UI {
         verticalTabela.addComponent(buildLabelTabela("Turnos"));
         verticalTabela.addComponent(tableTurno);
         verticalTabela.addComponent(buildBarButtonsTurno(datasourceturno));
+        h1.addComponent(verticalTabela);
+        
+        verticalTabela = new VerticalLayout();
+        verticalTabela.addComponent(buildLabelTabela("Tipo Ocorrencia"));
+        verticalTabela.addComponent(tableTipoOcorrencia);
+        verticalTabela.addComponent(buildBarButtonsTipoOcorrencia(datasourceTipoOcorrencia));
         h1.addComponent(verticalTabela);
 
         verticalFinal.addComponent(h1);
@@ -307,6 +327,50 @@ public class MaquinaUI extends UI {
         return barButton;
     }
 
+    
+        private HorizontalLayout buildBarButtonsTipoOcorrencia(final TipoOcorrenciaJPAContainer  datasource) {
+        Button bIncluir = new Button("Incluir");
+        bIncluir.addClickListener(new Button.ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                TipoOcorrenciaWindow window = new TipoOcorrenciaWindow(datasourceTipoOcorrencia);
+                window.create();
+            }
+        });
+
+        Button bAtualizar = new Button("Atualizar");
+        bAtualizar.addClickListener(new Button.ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                datasourceTipoOcorrencia.refresh();
+            }
+        });
+
+        Button bSobre = new Button("Sobre");
+        bSobre.addClickListener(new Button.ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                new SobreWindow().show();
+            }
+        });
+        bSobre.setClickShortcut(KeyCode.F1);
+
+        Button[] buttons = {bIncluir, bAtualizar, bSobre};
+        HorizontalLayout barButton = new HorizontalLayout();
+        barButton.setHeight("50");
+
+        for (Button b : buttons) {
+            b.setStyleName(Runo.BUTTON_BIG);
+            barButton.addComponent(b);
+            barButton.setComponentAlignment(b, Alignment.MIDDLE_CENTER);
+        }
+
+        return barButton;
+    }
+    
     private HorizontalLayout buildBottom() {
         String content = "<a href='http://www.cgcautomacao.com.br' "
                 + "title='CGC Automação' target='open'>CGC Automação</a> "
