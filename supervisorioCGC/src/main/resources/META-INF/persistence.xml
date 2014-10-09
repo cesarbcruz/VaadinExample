@@ -5,9 +5,11 @@
     <non-jta-data-source>java:/BDerp</non-jta-data-source>
     <class>br.com.cgc.vaadin.model.Turno</class>
     <class>br.com.cgc.vaadin.model.Maquina</class>
+    <class>br.com.cgc.vaadin.model.Ocorrencia</class>
+    <class>br.com.cgc.vaadin.model.TipoOcorrencia</class>
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
-      <property name="hibernate.hbm2ddl.auto " value="update"/>
+      <property name="hibernate.hbm2ddl.auto " value="create"/>
       <property name="hibernate.show_sql" value="true"/>
       <property name="hibernate.connection.charSet" value="UTF-8"/>
     </properties>
