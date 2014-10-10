@@ -99,7 +99,7 @@ public class OcorrenciaWindow extends Window implements Button.ClickListener {
      * <code>Window</code> em forma de edição.
      */
     public void create() {
-        setCaption("Novo Ocorrencia");
+        setCaption("Nova Ocorrência");
         bindingFields(new Ocorrencia());
         UI.getCurrent().addWindow(this);
     }
