@@ -95,7 +95,7 @@ public class TipoOcorrenciaWindow extends Window implements Button.ClickListener
      * <code>Window</code> em forma de edição.
      */
     public void create() {
-        setCaption("Novo TipoOcorrencia");
+        setCaption("Novo Tipo Ocorrência");
         bindingFields(new TipoOcorrencia());
         UI.getCurrent().addWindow(this);
     }
