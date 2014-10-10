@@ -10,17 +10,16 @@ import javax.validation.constraints.Size;
 public class TipoOcorrencia implements AbstractEntity {
 
     /**
-     * Chave primária da entidade <code>TipoOcorrencia</code>. O valor gerado pelo banco de dados.
+     * Chave primária da entidade
+     * <code>TipoOcorrencia</code>. O valor gerado pelo banco de dados.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    
-    @NotNull @Size(min=5, max=200)
+    @NotNull
+    @Size(min = 5, max = 200)
     private String nome;
-    
     private String descricao;
-       
     /**
      * Atributo utilizado para controle
      * <code>lock</code> (otimista) da
@@ -28,11 +27,19 @@ public class TipoOcorrencia implements AbstractEntity {
      */
     @Version
     private Integer version;
+    
+    @Transient
+    private String caption;
+
+    public String getCaption() {
+        caption = id + "-" + nome;
+        return caption;
+    }
 
     public TipoOcorrencia() {
         this(null, "", "", 0);
     }
-    
+
     public TipoOcorrencia(Integer id, String nome, String descricao, Integer version) {
         this.id = id;
         this.nome = nome;
@@ -71,6 +78,6 @@ public class TipoOcorrencia implements AbstractEntity {
 
     @Override
     public String toString() {
-        return "[ " + nome + " - " + descricao + " ]";
+        return id + " - " + nome;
     }
 }

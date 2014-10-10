@@ -10,6 +10,7 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 
 import br.com.cgc.vaadin.ds.MaquinaJPAContainer;
+import br.com.cgc.vaadin.ds.OcorrenciaJPAContainer;
 import br.com.cgc.vaadin.ds.TipoOcorrenciaJPAContainer;
 import br.com.cgc.vaadin.ds.TurnoJPAContainer;
 import br.com.cgc.vaadin.ui.*;
@@ -59,9 +60,11 @@ public class MaquinaUI extends UI {
     private Table tableMaquina;
     private Table tableTurno;
     private Table tableTipoOcorrencia;
+    private Table tableOcorrencia;
     private final MaquinaJPAContainer dataSourceMaquina = new MaquinaJPAContainer();
     private final TurnoJPAContainer datasourceturno = new TurnoJPAContainer();
     private final TipoOcorrenciaJPAContainer  datasourceTipoOcorrencia = new TipoOcorrenciaJPAContainer();
+    private final OcorrenciaJPAContainer  datasourceOcorrencia = new OcorrenciaJPAContainer();
 
     @Override
     protected void init(VaadinRequest request) {
@@ -92,6 +95,16 @@ public class MaquinaUI extends UI {
             @Override
             public void itemClick(ItemClickEvent event) {
                 TipoOcorrenciaWindow window = new TipoOcorrenciaWindow(datasourceTipoOcorrencia);
+                window.edit(Integer.valueOf(event.getItemId().toString()));
+            }
+        });
+        
+        tableOcorrencia = new OcorrenciaTable(datasourceOcorrencia);
+        tableOcorrencia.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+
+            @Override
+            public void itemClick(ItemClickEvent event) {
+                OcorrenciaWindow window = new OcorrenciaWindow(datasourceOcorrencia);
                 window.edit(Integer.valueOf(event.getItemId().toString()));
             }
         });
@@ -179,14 +192,27 @@ public class MaquinaUI extends UI {
         verticalTabela.addComponent(buildBarButtonsTurno(datasourceturno));
         h1.addComponent(verticalTabela);
         
-        verticalTabela = new VerticalLayout();
-        verticalTabela.addComponent(buildLabelTabela("Tipo Ocorrencia"));
-        verticalTabela.addComponent(tableTipoOcorrencia);
-        verticalTabela.addComponent(buildBarButtonsTipoOcorrencia(datasourceTipoOcorrencia));
-        h1.addComponent(verticalTabela);
-
         verticalFinal.addComponent(h1);
         verticalFinal.setComponentAlignment(h1, Alignment.MIDDLE_CENTER);
+        
+        HorizontalLayout h2 = new HorizontalLayout();
+        h2.setHeight("300");
+        h2.setWidth("1024");        
+        
+        verticalTabela = new VerticalLayout();
+        verticalTabela.addComponent(buildLabelTabela("Tipo Ocorrência"));
+        verticalTabela.addComponent(tableTipoOcorrencia);
+        verticalTabela.addComponent(buildBarButtonsTipoOcorrencia(datasourceTipoOcorrencia));
+        h2.addComponent(verticalTabela);
+        
+        verticalTabela = new VerticalLayout();
+        verticalTabela.addComponent(buildLabelTabela("Ocorrência"));
+        verticalTabela.addComponent(tableOcorrencia);
+        verticalTabela.addComponent(buildBarButtonsOcorrencia(datasourceOcorrencia));
+        h2.addComponent(verticalTabela);
+
+        verticalFinal.addComponent(h2);
+        verticalFinal.setComponentAlignment(h2, Alignment.MIDDLE_CENTER);
 
         return verticalFinal;
     }
@@ -371,6 +397,50 @@ public class MaquinaUI extends UI {
         return barButton;
     }
     
+        
+    private HorizontalLayout buildBarButtonsOcorrencia(final OcorrenciaJPAContainer  datasource) {
+        Button bIncluir = new Button("Incluir");
+        bIncluir.addClickListener(new Button.ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                OcorrenciaWindow window = new OcorrenciaWindow(datasourceOcorrencia);
+                window.create();
+            }
+        });
+
+        Button bAtualizar = new Button("Atualizar");
+        bAtualizar.addClickListener(new Button.ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                datasourceOcorrencia.refresh();
+            }
+        });
+
+        Button bSobre = new Button("Sobre");
+        bSobre.addClickListener(new Button.ClickListener() {
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                new SobreWindow().show();
+            }
+        });
+        bSobre.setClickShortcut(KeyCode.F1);
+
+        Button[] buttons = {bIncluir, bAtualizar, bSobre};
+        HorizontalLayout barButton = new HorizontalLayout();
+        barButton.setHeight("50");
+
+        for (Button b : buttons) {
+            b.setStyleName(Runo.BUTTON_BIG);
+            barButton.addComponent(b);
+            barButton.setComponentAlignment(b, Alignment.MIDDLE_CENTER);
+        }
+
+        return barButton;
+    }    
+        
     private HorizontalLayout buildBottom() {
         String content = "<a href='http://www.cgcautomacao.com.br' "
                 + "title='CGC Automação' target='open'>CGC Automação</a> "

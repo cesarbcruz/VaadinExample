@@ -25,7 +25,7 @@ public class TipoOcorrenciaJPAContainer extends JPAContainer<TipoOcorrencia> {
 	/**
 	 * Nome da unidade persistencia. De acordo com o arquivo <code>persistence.xml</code>.
 	 */
-	private static final String PERSISTENCE_UNIT = "appCGCUnit"; 
+	public static final String PERSISTENCE_UNIT = "appCGCUnit"; 
 	
 	public TipoOcorrenciaJPAContainer() {
 		super(TipoOcorrencia.class);

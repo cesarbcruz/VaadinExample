@@ -3,41 +3,45 @@ package br.com.cgc.vaadin.ui;
 import org.apache.log4j.Logger;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import br.com.cgc.vaadin.ds.OcorrenciaJPAContainer;
 import br.com.cgc.vaadin.ds.TipoOcorrenciaJPAContainer;
+import br.com.cgc.vaadin.model.Ocorrencia;
 import br.com.cgc.vaadin.model.TipoOcorrencia;
+import br.com.cgc.vaadin.util.DateToSqlTimestampConverter;
+import com.vaadin.addon.jpacontainer.EntityItem;
+import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectConverter;
 
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.ui.Button;
+import com.vaadin.shared.ui.datefield.Resolution;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import org.vaadin.thomas.timefield.TimeField;
 
 /**
  * Tela de Edição / Cadastro / Delete da
- * <code>TipoOcorrencia</code>.
+ * <code>Ocorrencia</code>.
  *
  * @author CGC Automação
  */
-public class TipoOcorrenciaWindow extends Window implements Button.ClickListener {
+public class OcorrenciaWindow extends Window implements Button.ClickListener {
 
-    private static Logger log = Logger.getLogger(TipoOcorrenciaWindow.class);
+    private static Logger log = Logger.getLogger(OcorrenciaWindow.class);
     private static final long serialVersionUID = -2996627404786697495L;
     private FormLayout layout;
-    private BeanFieldGroup<TipoOcorrencia> binder;
+    private BeanFieldGroup<Ocorrencia> binder;
     private HorizontalLayout buttons;
     private Button bSalvar;
     private Button bCancelar;
     private Button bExcluir;
-    private TipoOcorrenciaJPAContainer datasource;
+    private OcorrenciaJPAContainer datasource;
 
-    public TipoOcorrenciaWindow(TipoOcorrenciaJPAContainer datasource) {
+    public OcorrenciaWindow(OcorrenciaJPAContainer datasource) {
         this.datasource = datasource;
         init();
         setModal(true);
@@ -79,14 +83,14 @@ public class TipoOcorrenciaWindow extends Window implements Button.ClickListener
      */
     public void edit(Integer id) {
         try {
-            setCaption("Editar Tipo Ocorrência");
-            TipoOcorrencia m = datasource.getItem(id).getEntity();
+            setCaption("Editar Ocorrência");
+            Ocorrencia m = datasource.getItem(id).getEntity();
             bindingFields(m);
             bExcluir.setVisible(true);
             UI.getCurrent().addWindow(this);
         } catch (Exception ex) {
             log.error("Não conseguiu carregar a tela de edição: ", ex);
-            Notification.show("Não consegui abrir o tipo ocorrência para edição!\n" + ex.getMessage(), Type.ERROR_MESSAGE);
+            Notification.show("Não consegui abrir a ocorrência para edição!\n" + ex.getMessage(), Type.ERROR_MESSAGE);
         }
     }
 
@@ -95,8 +99,8 @@ public class TipoOcorrenciaWindow extends Window implements Button.ClickListener
      * <code>Window</code> em forma de edição.
      */
     public void create() {
-        setCaption("Novo TipoOcorrencia");
-        bindingFields(new TipoOcorrencia());
+        setCaption("Novo Ocorrencia");
+        bindingFields(new Ocorrencia());
         UI.getCurrent().addWindow(this);
     }
 
@@ -105,8 +109,8 @@ public class TipoOcorrenciaWindow extends Window implements Button.ClickListener
      *
      * @param m
      */
-    private void bindingFields(TipoOcorrencia m) {
-        binder = new BeanFieldGroup<TipoOcorrencia>(TipoOcorrencia.class);
+    private void bindingFields(Ocorrencia m) {
+        binder = new BeanFieldGroup<Ocorrencia>(Ocorrencia.class);
         binder.setItemDataSource(m);
         Field<?> field = null;
         field = binder.buildAndBind("Nome", "nome");
@@ -116,7 +120,27 @@ public class TipoOcorrenciaWindow extends Window implements Button.ClickListener
         field = binder.buildAndBind("Descrição", "descricao");
         field.setWidth("200");
         layout.addComponent(field);
-        
+
+        DateField dataHoraField = new DateField("Data Hora");
+        dataHoraField.setWidth("150");
+        dataHoraField.setValue(new Date());
+        dataHoraField.setDateFormat("dd/MM/yyyy  HH:mm:ss");
+        dataHoraField.setResolution(Resolution.SECOND);
+        dataHoraField.setConverter(new DateToSqlTimestampConverter());
+        binder.bind(dataHoraField, "dataHora");
+        layout.addComponent(dataHoraField);
+
+        //=======================================================//
+        final TipoOcorrenciaJPAContainer tipoOcorrenciaJPAContainer = new TipoOcorrenciaJPAContainer();
+        final ComboBox comboBox = new ComboBox();
+        comboBox.setContainerDataSource(tipoOcorrenciaJPAContainer);
+        comboBox.setCaption("TipoOcorrencia");
+        comboBox.setConverter(new SingleSelectConverter<TipoOcorrencia>(comboBox));
+        comboBox.setItemCaptionPropertyId("caption");
+        binder.bind(comboBox, "tipoOcorrencia");
+        layout.addComponent(comboBox);        
+        //=======================================================//
+        layout.addComponent(field);
         layout.addComponent(binder.buildAndBind("Id", "id"));
 
         layout.addComponent(buttons);
@@ -130,7 +154,7 @@ public class TipoOcorrenciaWindow extends Window implements Button.ClickListener
     public void buttonClick(ClickEvent event) {
         if (event.getButton() == bSalvar) {
             try {
-                
+
                 binder.commit();
             } catch (CommitException e) {
                 log.error("Preencha o formulário corretamente: ", e);
@@ -140,11 +164,11 @@ public class TipoOcorrenciaWindow extends Window implements Button.ClickListener
 
             try {
                 datasource.addEntity(binder.getItemDataSource().getBean());
-                //log.debug("TipoOcorrencia persistida!");
-                Notification.show("Tipo Ocorrência persistido!", Type.HUMANIZED_MESSAGE);
+                //log.debug("Ocorrencia persistida!");
+                Notification.show("Ocorrência persistida!", Type.HUMANIZED_MESSAGE);
             } catch (Exception e) {
-                log.debug("Não consegui salvar o tipo ocorrência!", e);
-                Notification.show("Nao consegui salvar o tipo ocorrência!\n" + e.getMessage(), Type.ERROR_MESSAGE);
+                log.debug("Não consegui salvar a ocorrência!", e);
+                Notification.show("Não consegui salvar a ocorrência!\n" + e.getMessage(), Type.ERROR_MESSAGE);
                 return;
             }
         } else if (event.getButton() == bExcluir) {
@@ -155,10 +179,10 @@ public class TipoOcorrenciaWindow extends Window implements Button.ClickListener
                             if (dialog.isConfirmed()) {
                                 try {
                                     datasource.removeItem(binder.getItemDataSource().getBean().getId());
-                                    //log.debug("Excluiu o Tipo Ocorrência!");
+                                    //log.debug("Excluiu a Ocorrencia!");
                                 } catch (Exception e) {
-                                    log.debug("Não consegui remover o Tipo Ocorrência!", e);
-                                    Notification.show("Não consegui remover o Tipo Ocorrência!\n" + e.getMessage(), Type.ERROR_MESSAGE);
+                                    log.debug("Não consegui remover a ocorrência!", e);
+                                    Notification.show("Não consegui remover a ocorrência!\n" + e.getMessage(), Type.ERROR_MESSAGE);
                                 }
                                 close();
                             }
